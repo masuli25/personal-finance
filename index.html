@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#101b35">
+<title>Personal Finance</title>
+<style>
+:root{--bg:#f3f5fa;--panel:#fff;--ink:#172033;--muted:#758096;--primary:#172b52;--accent:#3978f6;--green:#15966b;--red:#dc5555;--line:#e7eaf1;--radius:18px}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,Segoe UI,sans-serif}
+button,input,select,textarea{font:inherit}button{cursor:pointer;border:0;border-radius:12px;padding:11px 15px;background:var(--accent);color:#fff;font-weight:650}
+button.secondary{background:#eef2fa;color:var(--primary)}button.danger{background:#fff0f0;color:var(--red)}
+.wrap{max-width:1080px;margin:auto;padding:18px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}.brand{font-weight:800;font-size:18px;letter-spacing:.2px}.brand small{display:block;color:var(--muted);font-weight:500;font-size:12px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:0 5px 18px #172b5208}
+.hero{background:linear-gradient(125deg,#101b35,#203e70);color:white;border:0}.hero .muted{color:#c5d0e3}.balance{font-size:clamp(28px,6vw,40px);font-weight:800;letter-spacing:-1px;margin:6px 0 16px}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}.span-12{grid-column:span 12}.span-8{grid-column:span 8}.span-6{grid-column:span 6}.span-4{grid-column:span 4}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.stat{padding:13px;border-radius:14px;background:#ffffff17}.stat b{display:block;font-size:18px;margin-top:3px}
+h2{font-size:17px;margin:0 0 14px}h3{font-size:14px;margin:0 0 8px}.muted{color:var(--muted);font-size:13px}.positive{color:var(--green)}.negative{color:var(--red)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}.actions button{flex:1;min-width:135px}
+label{display:block;font-size:13px;font-weight:650;margin:12px 0 5px}input,select,textarea{width:100%;padding:12px;border:1px solid var(--line);border-radius:11px;background:#fff;color:var(--ink)}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:11px 8px;border-bottom:1px solid var(--line)}th{color:var(--muted);font-weight:650}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px}.pill{font-size:11px;padding:4px 8px;border-radius:20px;background:#eef2fa;color:var(--primary)}
+nav{display:flex;gap:7px;overflow:auto;padding:3px 0 14px}nav button{white-space:nowrap;background:#e8edf7;color:#344564}nav button.active{background:var(--primary);color:white}
+.hidden{display:none!important}.login{max-width:390px;margin:9vh auto}.login .brand{font-size:22px}
+.modal{position:fixed;inset:0;background:#11182788;display:grid;place-items:center;padding:16px;z-index:5}.modalbox{width:min(100%,480px);max-height:90vh;overflow:auto;background:white;border-radius:20px;padding:20px}
+.smallbtn{padding:6px 9px;font-size:12px}.category-list{display:flex;flex-wrap:wrap;gap:8px}.category{background:#eef2fa;padding:8px 11px;border-radius:12px;display:flex;gap:8px;align-items:center}
+@media(max-width:700px){.wrap{padding:13px}.span-8,.span-6,.span-4{grid-column:span 12}.formgrid{grid-template-columns:1fr}.top{align-items:flex-start}.hide-mobile{display:none}.card{padding:15px}table{min-width:560px}.table-scroll{overflow:auto}}
+</style></head>
+<body>
+<div id="loginView" class="wrap login">
+ <div class="card">
+  <div class="brand">💰 PERSONAL FINANCE<small>Dashboard keuangan pribadi</small></div>
+  <h2 style="margin-top:28px">Masuk ke dashboard</h2>
+  <p class="muted">Masukkan PIN untuk membuka pencatatan.</p>
+  <label>PIN</label><input id="pinInput" type="password" inputmode="numeric" maxlength="12" placeholder="Masukkan PIN">
+  <button style="width:100%;margin-top:14px" onclick="login()">Masuk</button>
+  <p id="loginMsg" class="muted"></p>
+  <p class="muted">Versi awal: PIN demo tersimpan di browser. Lihat README untuk mengaktifkan penyimpanan dan keamanan online sebelum digunakan dengan data penting.</p>
+ </div>
+</div>
+<div id="appView" class="wrap hidden">
+ <header class="top"><div class="brand">💰 <span id="appTitle">PERSONAL FINANCE</span><small>Catatan keuangan pribadi</small></div><button class="secondary" onclick="logout()">Keluar</button></header>
+ <nav>
+  <button class="active" data-tab="dashboard" onclick="showTab('dashboard',this)">Dashboard</button>
+  <button data-tab="transactions" onclick="showTab('transactions',this)">Transaksi</button>
+  <button data-tab="reports" onclick="showTab('reports',this)">Laporan</button>
+  <button data-tab="settings" onclick="showTab('settings',this)">Pengaturan</button>
+ </nav>
+ <section id="dashboard" class="tab">
+  <div class="grid">
+   <div class="card hero span-8"><div class="muted">TOTAL SALDO</div><div class="balance" id="balance">Rp0</div>
+    <div class="stats"><div class="stat"><span class="muted">Pemasukan bulan ini</span><b id="income" class="positive">Rp0</b></div><div class="stat"><span class="muted">Pengeluaran bulan ini</span><b id="expense">Rp0</b></div></div>
+   </div>
+   <div class="card span-4"><h2>Ringkasan</h2><div class="row"><span class="muted">Jumlah transaksi</span><b id="count">0</b></div><hr style="border:0;border-top:1px solid var(--line);margin:14px 0"><div class="row"><span class="muted">Saldo awal</span><b id="openingView">Rp0</b></div><p class="muted">Saldo dihitung dari saldo awal ditambah pemasukan dikurangi pengeluaran.</p></div>
+   <div class="card span-12"><div class="row"><h2>Transaksi terbaru</h2><button class="smallbtn" onclick="showTab('transactions')">Lihat semua</button></div><div class="table-scroll"><table><thead><tr><th>Tanggal</th><th>Jenis</th><th>Kategori</th><th>Keterangan</th><th>Nominal</th></tr></thead><tbody id="recentRows"></tbody></table></div></div>
+  </div>
+  <div class="actions"><button onclick="openForm('Pemasukan')">＋ Pemasukan</button><button onclick="openForm('Pengeluaran')">－ Pengeluaran</button><button class="secondary" onclick="openForm('Transfer')">⇄ Transfer antar akun</button></div>
+ </section>
+ <section id="transactions" class="tab hidden">
+  <div class="card"><div class="row"><h2>Riwayat transaksi</h2><button onclick="openForm()">＋ Tambah</button></div><div class="formgrid"><div><label>Filter jenis</label><select id="filterType" onchange="renderTransactions()"><option value="">Semua</option><option>Pemasukan</option><option>Pengeluaran</option><option>Transfer</option></select></div><div><label>Cari</label><input id="search" placeholder="Cari kategori/keterangan..." oninput="renderTransactions()"></div></div><div class="table-scroll"><table><thead><tr><th>Tanggal</th><th>Jenis</th><th>Kategori</th><th>Keterangan</th><th>Nominal</th><th>Aksi</th></tr></thead><tbody id="allRows"></tbody></table></div></div>
+ </section>
+ <section id="reports" class="tab hidden">
+  <div class="grid"><div class="card span-6"><h2>Rekap bulan ini</h2><p class="muted">Pemasukan</p><h2 class="positive" id="reportIncome">Rp0</h2><p class="muted">Pengeluaran</p><h2 class="negative" id="reportExpense">Rp0</h2><p class="muted">Selisih</p><h2 id="reportNet">Rp0</h2></div><div class="card span-6"><h2>Pengeluaran per kategori</h2><div id="categoryReport" class="muted">Belum ada data.</div></div></div>
+ </section>
+ <section id="settings" class="tab hidden">
+  <div class="grid">
+   <div class="card span-6"><h2>Pengaturan keuangan</h2><label>Nama dashboard</label><input id="settingTitle"><label>Saldo awal (Rp)</label><input id="settingOpening" type="number" min="0"><button style="margin-top:14px" onclick="saveGeneral()">Simpan pengaturan</button></div>
+   <div class="card span-6"><h2>Ganti PIN demo</h2><label>PIN baru</label><input id="newPin" type="password" inputmode="numeric" maxlength="12"><button class="secondary" style="margin-top:14px" onclick="changePin()">Ganti PIN</button><p class="muted">PIN versi ini hanya untuk prototipe lokal, bukan perlindungan server.</p></div>
+   <div class="card span-12"><h2>Kelola kategori</h2><p class="muted">Tambah atau hapus kategori. Perubahan langsung memengaruhi pilihan pada formulir transaksi.</p><div class="formgrid"><div><label>Jenis kategori</label><select id="newCatType"><option>Pemasukan</option><option>Pengeluaran</option></select></div><div><label>Nama kategori baru</label><input id="newCatName" placeholder="Contoh: Freelance"></div></div><button style="margin-top:12px" onclick="addCategory()">Tambah kategori</button><div id="categoryManager" style="margin-top:15px"></div></div>
+   <div class="card span-12"><h2>Data</h2><p class="muted">Unduh salinan transaksi dalam format CSV untuk cadangan.</p><button class="secondary" onclick="exportCSV()">Unduh CSV</button><button class="danger" style="margin-left:8px" onclick="resetData()">Hapus semua transaksi</button></div>
+  </div>
+ </section>
+</div>
+<div id="modal" class="modal hidden"><div class="modalbox"><div class="row"><h2 id="formTitle">Tambah transaksi</h2><button class="secondary smallbtn" onclick="closeForm()">Tutup</button></div>
+ <input type="hidden" id="editId"><label>Tanggal</label><input type="date" id="fDate">
+ <label>Jenis transaksi</label><select id="fType" onchange="updateCategoryOptions()"><option>Pemasukan</option><option>Pengeluaran</option><option>Transfer</option></select>
+ <label>Kategori</label><select id="fCategory"></select>
+ <label>Keterangan</label><input id="fNote" placeholder="Contoh: belanja kebutuhan dapur">
+ <div class="formgrid"><div><label>Nominal (Rp)</label><input type="number" id="fAmount" min="1" placeholder="50000"></div><div><label>Akun</label><select id="fAccount"><option>Tunai</option><option>Rekening utama</option><option>E-wallet</option><option>Tabungan</option></select></div></div>
+ <div id="transferFields" class="hidden"><label>Akun tujuan</label><select id="fToAccount"><option>Rekening utama</option><option>Tunai</option><option>E-wallet</option><option>Tabungan</option></select></div>
+ <button style="width:100%;margin-top:18px" onclick="saveTransaction()">Simpan transaksi</button>
+</div></div>
+<script>
+const DEFAULT_CATS={Pemasukan:["Gaji","Usaha/Bisnis","Freelance","Bonus","Hadiah","Investasi","Lain-lain"],Pengeluaran:["Makan & Minum","Belanja Dapur","Transportasi","Bensin","Tagihan","Tempat Tinggal","Pendidikan","Kesehatan","Cicilan/Hutang","Hiburan","Belanja Pribadi","Sosial/Donasi","Lain-lain"],Transfer:["Pindah antar akun"]};
+const KEY="pf_v1_data", PINKEY="pf_v1_pin", SETKEY="pf_v1_settings";
+let db=JSON.parse(localStorage.getItem(KEY)||'{"transactions":[]}'), cats=JSON.parse(localStorage.getItem("pf_v1_cats")||JSON.stringify(DEFAULT_CATS)), settings=JSON.parse(localStorage.getItem(SETKEY)||'{"title":"PERSONAL FINANCE","opening":3647800}');
+function money(n){return new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0}).format(Number(n)||0)}
+function persist(){localStorage.setItem(KEY,JSON.stringify(db));localStorage.setItem("pf_v1_cats",JSON.stringify(cats));localStorage.setItem(SETKEY,JSON.stringify(settings))}
+function login(){let p=document.getElementById('pinInput').value, saved=localStorage.getItem(PINKEY)||"1234";if(p===saved){sessionStorage.setItem('pf_logged','1');document.getElementById('loginView').classList.add('hidden');document.getElementById('appView').classList.remove('hidden');init()}else document.getElementById('loginMsg').textContent="PIN salah. PIN awal prototipe: 1234"}
+function logout(){sessionStorage.removeItem('pf_logged');location.reload()}
+function showTab(id,btn){document.querySelectorAll('.tab').forEach(x=>x.classList.add('hidden'));document.getElementById(id).classList.remove('hidden');document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));if(btn)btn.classList.add('active');else document.querySelector('nav button[data-tab="'+id+'"]').classList.add('active');if(id==='settings')renderCategories()}
+function init(){document.getElementById('appTitle').textContent=settings.title;document.getElementById('settingTitle').value=settings.title;document.getElementById('settingOpening').value=settings.opening;refresh()}
+function totals(){let now=new Date(),m=now.getMonth(),y=now.getFullYear(),inc=0,exp=0;db.transactions.forEach(t=>{let d=new Date(t.date+'T12:00:00');if(d.getMonth()===m&&d.getFullYear()===y){if(t.type==='Pemasukan')inc+=t.amount;if(t.type==='Pengeluaran')exp+=t.amount}});let balance=Number(settings.opening)||0;db.transactions.forEach(t=>{if(t.type==='Pemasukan')balance+=t.amount;if(t.type==='Pengeluaran')balance-=t.amount});return{inc,exp,balance}}
+function refresh(){let t=totals();document.getElementById('balance').textContent=money(t.balance);document.getElementById('income').textContent=money(t.inc);document.getElementById('expense').textContent=money(t.exp);document.getElementById('count').textContent=db.transactions.length;document.getElementById('openingView').textContent=money(settings.opening);document.getElementById('reportIncome').textContent=money(t.inc);document.getElementById('reportExpense').textContent=money(t.exp);document.getElementById('reportNet').textContent=money(t.inc-t.exp);renderRecent();renderTransactions();renderReport()}
+function renderRecent(){let rows=[...db.transactions].reverse().slice(0,6);document.getElementById('recentRows').innerHTML=rows.map(t=>`<tr><td>${esc(t.date)}</td><td>${esc(t.type)}</td><td>${esc(t.category)}</td><td>${esc(t.note)}</td><td>${money(t.amount)}</td></tr>`).join('')||'<tr><td colspan="5" class="muted">Belum ada transaksi.</td></tr>'}
+function renderTransactions(){let type=document.getElementById('filterType')?.value||'',q=(document.getElementById('search')?.value||'').toLowerCase();let rows=[...db.transactions].reverse().filter(t=>(!type||t.type===type)&&(`${t.category} ${t.note}`).toLowerCase().includes(q));document.getElementById('allRows').innerHTML=rows.map(t=>`<tr><td>${esc(t.date)}</td><td>${esc(t.type)}</td><td>${esc(t.category)}</td><td>${esc(t.note)}</td><td>${money(t.amount)}</td><td><button class="smallbtn secondary" onclick="editTransaction('${t.id}')">Edit</button> <button class="smallbtn danger" onclick="deleteTransaction('${t.id}')">Hapus</button></td></tr>`).join('')||'<tr><td colspan="6" class="muted">Belum ada transaksi.</td></tr>'}
+function renderReport(){let sums={};db.transactions.filter(t=>t.type==='Pengeluaran').forEach(t=>sums[t.category]=(sums[t.category]||0)+t.amount);let entries=Object.entries(sums).sort((a,b)=>b[1]-a[1]);document.getElementById('categoryReport').innerHTML=entries.map(([k,v])=>`<div class="row" style="padding:8px 0;border-bottom:1px solid var(--line)"><span>${esc(k)}</span><b>${money(v)}</b></div>`).join('')||'Belum ada pengeluaran.'}
+function openForm(type){document.getElementById('modal').classList.remove('hidden');document.getElementById('editId').value='';document.getElementById('formTitle').textContent='Tambah transaksi';document.getElementById('fDate').value=new Date().toISOString().slice(0,10);document.getElementById('fType').value=type||'Pengeluaran';document.getElementById('fNote').value='';document.getElementById('fAmount').value='';document.getElementById('fAccount').value='Tunai';updateCategoryOptions()}
+function closeForm(){document.getElementById('modal').classList.add('hidden')}
+function updateCategoryOptions(){let type=document.getElementById('fType').value;document.getElementById('fCategory').innerHTML=(cats[type]||[]).map(c=>`<option>${esc(c)}</option>`).join('');document.getElementById('transferFields').classList.toggle('hidden',type!=='Transfer')}
+function saveTransaction(){let id=document.getElementById('editId').value||crypto.randomUUID(),type=document.getElementById('fType').value,amount=Number(document.getElementById('fAmount').value);if(!amount||amount<1){alert('Masukkan nominal yang benar.');return}let t={id,date:document.getElementById('fDate').value,type,category:document.getElementById('fCategory').value,note:document.getElementById('fNote').value,amount,account:document.getElementById('fAccount').value,toAccount:document.getElementById('fToAccount').value};let i=db.transactions.findIndex(x=>x.id===id);if(i>=0)db.transactions[i]=t;else db.transactions.push(t);persist();closeForm();refresh()}
+function editTransaction(id){let t=db.transactions.find(x=>x.id===id);if(!t)return;openForm(t.type);document.getElementById('editId').value=t.id;document.getElementById('formTitle').textContent='Edit transaksi';document.getElementById('fDate').value=t.date;document.getElementById('fType').value=t.type;updateCategoryOptions();document.getElementById('fCategory').value=t.category;document.getElementById('fNote').value=t.note;document.getElementById('fAmount').value=t.amount;document.getElementById('fAccount').value=t.account}
+function deleteTransaction(id){if(confirm('Hapus transaksi ini?')){db.transactions=db.transactions.filter(t=>t.id!==id);persist();refresh()}}
+function addCategory(){let type=document.getElementById('newCatType').value,name=document.getElementById('newCatName').value.trim();if(!name)return alert('Isi nama kategori.');if(cats[type].includes(name))return alert('Kategori sudah ada.');cats[type].push(name);document.getElementById('newCatName').value='';persist();renderCategories()}
+function removeCategory(type,name){if(confirm('Hapus kategori '+name+'?')){cats[type]=cats[type].filter(x=>x!==name);persist();renderCategories()}}
+function renderCategories(){document.getElementById('categoryManager').innerHTML=Object.entries(cats).map(([type,arr])=>`<h3 style="margin-top:16px">${type}</h3><div class="category-list">${arr.map(n=>`<span class="category">${esc(n)} <button class="danger smallbtn" onclick="removeCategory('${type}','${esc(n)}')">×</button></span>`).join('')}</div>`).join('')}
+function saveGeneral(){settings.title=document.getElementById('settingTitle').value.trim()||'PERSONAL FINANCE';settings.opening=Number(document.getElementById('settingOpening').value)||0;persist();init();alert('Pengaturan disimpan.')}
+function changePin(){let p=document.getElementById('newPin').value;if(!/^\d{4,12}$/.test(p))return alert('PIN harus 4–12 angka.');localStorage.setItem(PINKEY,p);document.getElementById('newPin').value='';alert('PIN demo berhasil diganti.')}
+function exportCSV(){let rows=[['Tanggal','Jenis','Kategori','Keterangan','Nominal','Akun'],...db.transactions.map(t=>[t.date,t.type,t.category,t.note,t.amount,t.account])];let csv=rows.map(r=>r.map(v=>'"'+String(v??'').replaceAll('"','""')+'"').join(',')).join('\n');let a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv'}));a.download='transaksi-keuangan.csv';a.click();URL.revokeObjectURL(a.href)}
+function resetData(){if(confirm('Yakin menghapus seluruh transaksi? Unduh CSV terlebih dahulu jika perlu.')){db.transactions=[];persist();refresh()}}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+if(sessionStorage.getItem('pf_logged')==='1'){document.getElementById('loginView').classList.add('hidden');document.getElementById('appView').classList.remove('hidden');init()}
+</script></body></html>
